@@ -1,8 +1,9 @@
 import 'dart:convert';
+import 'package:drighna_ed_tech/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'login_screen.dart'; // Make sure this import path matches your file structure
+import 'login_screen.dart'; // Ensure this matches your project structure
 
 class TakeUrlScreen extends StatefulWidget {
   @override
@@ -10,13 +11,33 @@ class TakeUrlScreen extends StatefulWidget {
 }
 
 class _TakeUrlScreenState extends State<TakeUrlScreen> {
-  TextEditingController _baseurl = TextEditingController();
+  final TextEditingController _baseurl = TextEditingController();
   bool _isLoading = false;
 
   @override
   void dispose() {
     _baseurl.dispose();
     super.dispose();
+  }
+
+  void showMaintenanceMessage() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Maintenance"),
+          content: const Text("The app is currently under maintenance."),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> getDataFromApi(String domain, BuildContext context) async {
@@ -28,18 +49,20 @@ class _TakeUrlScreenState extends State<TakeUrlScreen> {
       domain += "/";
     }
     String url = domain + "app";
-
+print("domain+app>>>>>>>>>>"+url);
     try {
       final response = await http.post(
         Uri.parse(url),
         headers: {
-          "Content-Type": "application/json",
-          "Client-Service": "your_client_service_value_here", // Update these constants as per your configuration
-          "Auth-Key": "your_auth_key_value_here",
+          "Content-Type": Constants.contentType,
+          "Client-Service": Constants
+              .clientService, 
+          "Auth-Key": Constants.authKey,
         },
       );
 
       final result = json.decode(response.body);
+      print(result);
 
       if (response.statusCode == 200) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -47,18 +70,37 @@ class _TakeUrlScreenState extends State<TakeUrlScreen> {
         await prefs.setBool('isUrlTaken', true);
         await prefs.setString('apiUrl', result['url']);
         await prefs.setString('imagesUrl', result['site_url']);
-        // Continue saving other needed preferences...
 
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage())); // Use pushReplacement to avoid back navigation
+        // Handling maintenance mode
+        final isMaintenanceMode = result['maintenance_mode'] == "1";
+        await prefs.setBool('maintenance_mode', isMaintenanceMode);
+
+        // Handling locale
+        final langCode = result['lang_code'] ??
+            Constants.langCode; // Default to 'en' if null
+        await prefs.setString('lang_code', langCode);
+
+        if (isMaintenanceMode) {
+          showMaintenanceMessage();
+        } else {
+          // Assuming you handle locale setting in your app initialization or on a specific screen
+           setState(() {
+      _isLoading = false;
+    });
+
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      LoginPage())); // Or LocaleScreen() based on your app flow
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Invalid Domain.'))
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Invalid Domain.')));
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred: $e'))
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('An error occurred: $e')));
     } finally {
       setState(() {
         _isLoading = false;
@@ -79,7 +121,7 @@ class _TakeUrlScreenState extends State<TakeUrlScreen> {
                 ),
               ),
               child: Center(
-                child: SingleChildScrollView( // Added to ensure view is scrollable when keyboard appears
+                child: SingleChildScrollView(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
@@ -102,7 +144,8 @@ class _TakeUrlScreenState extends State<TakeUrlScreen> {
                             decoration: const InputDecoration(
                               border: InputBorder.none,
                               hintText: 'Enter your school url',
-                              prefixIcon: Icon(Icons.public, color: Colors.black),
+                              prefixIcon:
+                                  Icon(Icons.public, color: Colors.black),
                             ),
                           ),
                         ),
@@ -114,26 +157,29 @@ class _TakeUrlScreenState extends State<TakeUrlScreen> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             ElevatedButton(
-                              onPressed: () => getDataFromApi(_baseurl.text.trim(), context),
+                              onPressed: () async {
+                                getDataFromApi(_baseurl.text.trim(), context);
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setString(
+                                    Constants.appDomain, _baseurl.text.trim());
+                              },
                               child: const Row(
-                              
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text('SUBMIT'),
-                                   Icon(
-                                        Icons.arrow_forward,
-                                        color: Colors.white,
-                                      ),
+                                  Icon(
+                                    Icons.arrow_forward,
+                                    color: Colors.white,
+                                  ),
                                 ],
                               ),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor:  const Color.fromARGB(255, 141, 127, 10),
-                                foregroundColor:  Colors.white,
-                                // primary: Color.fromARGB(255, 141, 127, 10), // Button color
-                                // onPrimary: Colors.white, // Text color
+                                backgroundColor:
+                                    const Color.fromARGB(255, 141, 127, 10),
+                                foregroundColor: Colors.white,
                               ),
                             ),
-
                           ],
                         ),
                       ),

@@ -28,11 +28,28 @@ class _SharedPreferencesDetailsScreenState extends State<SharedPreferencesDetail
     });
   }
 
+  Future<void> clearSharedPreferences() async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.clear(); // This clears all the data in shared preferences.
+  setState(() {
+    _loadSharedPreferencesData();
+  });
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('SharedPreferences Data'),
+        actions: [
+          IconButton(onPressed: (){
+            
+            
+              clearSharedPreferences();
+            
+           
+          }, icon: Icon(Icons.clear))
+        ],
       ),
       body: ListView(
         children: _sharedPrefsData.entries.map((entry) {

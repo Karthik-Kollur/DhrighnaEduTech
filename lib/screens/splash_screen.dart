@@ -40,22 +40,24 @@ class _SplashScreenState extends State<SplashScreen> {
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult == ConnectivityResult.none) {
       ScaffoldMessenger.of(context).showSnackBar(
-  const SnackBar(
-    backgroundColor: Colors.transparent, // Set background to transparent
-    content: Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        CircularProgressIndicator(),
-        Text(
-          'No internet connection! Waiting for connection...',
-          style: TextStyle(color: Colors.black), // Set text color to black
+        const SnackBar(
+          backgroundColor: Colors.transparent, // Set background to transparent
+          content: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              CircularProgressIndicator(),
+              Text(
+                'No internet connection! Waiting for connection...',
+                style:
+                    TextStyle(color: Colors.black), // Set text color to black
+              ),
+            ],
+          ),
+          behavior: SnackBarBehavior
+              .floating, // Use floating behavior for better appearance with transparent background
+          elevation: 0, // Remove shadow
         ),
-      ],
-    ),
-    behavior: SnackBarBehavior.floating, // Use floating behavior for better appearance with transparent background
-    elevation: 0, // Remove shadow
-  ),
-);
+      );
 
       // Retry checking for internet connection every 5 seconds
       _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
@@ -73,7 +75,8 @@ class _SplashScreenState extends State<SplashScreen> {
     bool isUrlTaken = prefs.getBool('isUrlTaken') ?? false;
     bool isLoggedin = prefs.getBool(Constants.isLoggegIn) ?? false;
     bool isLock = prefs.getBool(Constants.isLock) ?? false;
-    String apiUrl = prefs.getString(Constants.apiUrl) ?? Constants.domain + "/api/";
+    String apiUrl =
+        prefs.getString(Constants.apiUrl) ?? Constants.domain + "/api/";
 
     if (isUrlTaken) {
       checkMaintenanceMode(apiUrl, isLoggedin, isLock);
@@ -117,19 +120,23 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void navigateToTakeUrlScreen() {
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => TakeUrlScreen()));
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (_) => TakeUrlScreen()));
   }
 
   void navigateToNewDashboard() {
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => Dashboard()));
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (_) => DashboardScreen()));
   }
 
   void navigateToLoginScreen() {
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => LoginPage()));
+    Navigator.of(context)
+        .pushReplacement(MaterialPageRoute(builder: (_) => LoginPage()));
   }
 
   void navigateToStudentFees() {
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const StudentFees()));
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const StudentFees()));
   }
 
   void showMaintenanceMessage() {
@@ -165,7 +172,10 @@ class _SplashScreenState extends State<SplashScreen> {
           ),
         ),
         child: Center(
-          child: _timer == null ? Image.asset("assets/logo_small.png", width: 150.0, height: 100.0) : const CircularProgressIndicator(),
+          child: _timer == null
+              ? Image.asset("assets/logo_small.png",
+                  width: 150.0, height: 100.0)
+              : const CircularProgressIndicator(),
         ),
       ),
     );
