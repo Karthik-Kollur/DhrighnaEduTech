@@ -26,13 +26,128 @@ class _LoginPageState extends State<LoginPage> {
   List<String> childImageList = [];
   List<String> childClassList = [];
 
-  List Childrens = [];
-
   @override
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  void showChildList(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext bc) {
+        return Container(
+          height: 300,
+          color: Colors.white,
+          child: Column(
+            children: <Widget>[
+              Container(
+                color: Theme.of(context)
+                    .secondaryHeaderColor, // Change this to your secondary color
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    const Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text(
+                          'Child List',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            // set text style as per your design
+                          ),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: childNameList
+                      .length, // Assume childNameList is a list of strings
+                  itemBuilder: (BuildContext context, int index) {
+                    return Card(
+                      color: Colors.white,
+                      elevation: 10,
+                      child: ListTile(
+                        leading: childImageList[index] != null
+                            ? Image.network(
+                                childImageList[index],
+                                height: 30,
+                                width: 30,
+                                fit: BoxFit.cover,
+                                errorBuilder: (BuildContext context,
+                                    Object exception, StackTrace? stackTrace) {
+                                  // If the image fails to load, you can return an error image or icon
+                                  return const Icon(Icons.error);
+                                },
+                                loadingBuilder: (BuildContext context,
+                                    Widget child,
+                                    ImageChunkEvent? loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return SizedBox(
+                                    height:
+                                        30, // Match the Image.network height
+                                    width: 30, // Match the Image.network width
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
+                                            : null,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              )
+
+                            // Replace with the appropriate image provider
+                            : const CircleAvatar(
+                                child: Text("not set"),
+                              ), // Default image
+                        title: Text(
+                          childNameList[index],
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(childClassList[index]),
+                        onTap: () async {
+                          final SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          await prefs.setBool(Constants.isLoggegIn, true);
+
+                          await prefs.setString(
+                              Constants.classSection, childClassList[index]);
+
+                          await prefs.setString(
+                              Constants.studentId, childIdList[index]);
+                          await prefs.setString(
+                              "studentName", childNameList[index]);
+                          // await prefs.setString('selectedChild', jsonEncode(children[0]));
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                  builder: (_) =>
+                                      DashboardScreen())); // Adjust as needed
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Future<void> getDataFromApi(
@@ -65,7 +180,7 @@ class _LoginPageState extends State<LoginPage> {
       print(apiUrl);
 
       final requestBody = jsonEncode({
-        'username': username,
+        'username': username.trim(),
         'password': password,
         'deviceToken': dToken,
       });
@@ -105,20 +220,13 @@ class _LoginPageState extends State<LoginPage> {
           await prefs.setString(
               Constants.langCode, recordData['language']['short_code']);
 
-        
-             String imageUrl = prefs.getString("imagesUrl") ?? "" + (recordData['image'] ?? "");
-
+          String imageUrl =
+              prefs.getString("imagesUrl") ?? "" + (recordData['image'] ?? "");
 
           await prefs.setString(Constants.userImage, imageUrl);
 
           await prefs.setString(Constants.userName, recordData['username']);
 
-          // await prefs.setString(
-          //     Constants.admission_no, recordData['admission_no']);
-          // await prefs.setString(Constants.classId, recordData['class']);
-          // await prefs.setString(Constants.classSection, recordData['section']);
-
-         
           print("Role from API: ${data['role']}");
 
           if (data['role'] == 'parent') {
@@ -126,27 +234,38 @@ class _LoginPageState extends State<LoginPage> {
 
             await prefs.setString(Constants.parentsId, recordData['id']);
 
-
             print(recordData['parent_childs'].runtimeType);
             // Handling parent role
-            final children = recordData['parent_childs'];
+            final children = recordData['parent_childs'].map((child) {
+              return {
+                'student_id': child['student_id'],
+                'class': child['class'],
+                'section': child['section'],
+                'class_id': child['class_id'],
+                'section_id': child['section_id'],
+                'name': child['name'],
+                'image': child['image'] ??
+                    'default_image_path', // Provide a default image path if null
+              };
+            }).toList();
 
+            print(children);
+            print(children.length);
+            print(children.length > 1);
+            // childNameList.add(children[0]['name']);
 
-print(children);
+            // print(childNameList);
 
-            // if (children.length > 1) {
-            //   // Logic to handle multiple children
-            //   // Example: Save children info and navigate to a screen where the parent can choose a child
-            //   await prefs.setString('childrenInfo', jsonEncode(children));
-            //   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => DashboardScreen())); // Adjust as needed
-            // } else if
             if (children.length == 1) {
-               print(">>>>>>>>>>>>>in one child section>>>>>>>>>>>>" + children);
+              print(">>>>>>>>>>>>>in one child section>>>>>>>>>>>>" +
+                  children.toString());
               await prefs.setBool(Constants.isLoggegIn, true);
               await prefs.setBool('hasMultipleChild', false);
-              await prefs.setString(Constants.studentId,
+              await prefs.setString(Constants.classSection,
                   children[0]['class'] + " - " + children[0]['section']);
 
+              await prefs.setString(
+                  Constants.studentId, children[0]['student_id']);
               await prefs.setString("studentName", children[0]['name']);
 
               // Logic for single child, directly set child info and navigate
@@ -155,31 +274,30 @@ print(children);
                   builder: (_) => DashboardScreen())); // Adjust as needed
             } else {
               //if parent has multiple children
-               print(">>>>>>>>>>>>>in multiple child section>>>>>>>>>>>>" + children);
+              print(">>>>>>>>>>>>>in multiple child section>>>>>>>>>>>>" +
+                  children.toString());
               await prefs.setBool('hasMultipleChild', true);
               childNameList.clear();
               childIdList.clear();
               childImageList.clear();
               childClassList.clear();
 
-              for (int i = 0; i < children.length(); i++) {
+              for (int i = 0; i < children.length; i++) {
                 childNameList.add(children[i]['name']);
                 childIdList.add(children[i]['student_id']);
                 childImageList.add(children[i]['image']);
-                childClassList
-                    .add(children[i]['class'] + " - " + children[i]["section"]);
-                Childrens.add(children[i]['name']);
+                childClassList.add(children[i]['class'] +
+                    " - " +
+                    children[i]["section"].toString());
               }
 
+              showChildList(context);
 //show child list method run here
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(" I have to show the multiple childs")),
-              );
             }
           } else if (data['role'] == 'student') {
             await prefs.setBool(Constants.isLoggegIn, true);
             await prefs.setString(Constants.classSection,
-                recordData['class'] + " ("+ recordData['section']+")");
+                recordData['class'] + " (" + recordData['section'] + ")");
             await prefs.setString(
                 Constants.studentId, recordData['student_id']);
             await prefs.setString(
@@ -192,11 +310,11 @@ print(children);
             _isLoading = false;
           });
 
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => DashboardScreen()),
-            (Route<dynamic> route) => false,
-          );
+          // Navigator.pushAndRemoveUntil(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => DashboardScreen()),
+          //   (Route<dynamic> route) => false,
+          // );
         } else {
           setState(() {
             _isLoading = false;
@@ -293,7 +411,7 @@ print(children);
                   Image.asset('assets/splash_logo.png',
                       width: 150.0, height: 50.0),
                   const SizedBox(height: 10),
-                  TextField(
+                  TextFormField(
                     controller: _usernameController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
@@ -303,7 +421,7 @@ print(children);
                     ),
                   ),
                   const SizedBox(height: 20.0),
-                  TextField(
+                  TextFormField(
                     controller: _passwordController,
                     obscureText:
                         !_isPasswordVisible, // Use the _isPasswordVisible flag here

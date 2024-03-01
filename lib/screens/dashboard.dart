@@ -10,7 +10,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   String userName = Constants.userName;
-  String admissionNumber=Constants.admission_no;
+  String admissionNumber="";
   String userImage=Constants.userImage;
   // String classId=Constants.classId;
   String classSection=Constants.classSection;
@@ -26,7 +26,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() {
       userName = prefs.getString(Constants.userName) ??
           'No username saved locally'; // Use a fallback value
-admissionNumber=prefs.getString(Constants.admission_no)??Constants.admission_no;
+admissionNumber=prefs.getString(Constants.admission_no)??"";
 userImage=prefs.getString(Constants.userImage) ?? 'No userImage saved locally';
 classSection=prefs.getString(Constants.classSection)?? 'No classsection saved locally';
 // classId=prefs.getString(Constants.classId)?? ' No classsection saved locally';
