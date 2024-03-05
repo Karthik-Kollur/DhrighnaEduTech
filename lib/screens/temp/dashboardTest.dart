@@ -4,16 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({super.key});
+
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
   String userName = Constants.userName;
-  String admissionNumber="";
-  String userImage=Constants.userImage;
+  String admissionNumber = "";
+  String userImage = Constants.userImage;
   // String classId=Constants.classId;
-  String classSection=Constants.classSection;
+  String classSection = Constants.classSection;
+
+  
 
   @override
   void initState() {
@@ -26,9 +30,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() {
       userName = prefs.getString(Constants.userName) ??
           'No username saved locally'; // Use a fallback value
-admissionNumber=prefs.getString(Constants.admission_no)??"";
-userImage=prefs.getString(Constants.userImage) ?? 'No userImage saved locally';
-classSection=prefs.getString(Constants.classSection)?? 'No classsection saved locally';
+      admissionNumber = prefs.getString(Constants.admission_no) ?? "";
+      userImage =
+          prefs.getString(Constants.userImage) ?? 'No userImage saved locally';
+      classSection = prefs.getString(Constants.classSection) ??
+          'No classsection saved locally';
 // classId=prefs.getString(Constants.classId)?? ' No classsection saved locally';
     });
   }
@@ -53,10 +59,11 @@ classSection=prefs.getString(Constants.classSection)?? 'No classsection saved lo
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       CircleAvatar(
-                      
                         backgroundImage: NetworkImage(userImage.toString()),
                       ),
-                      Text(userName, style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 25)),
+                      Text(userName,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 25)),
                       Text('Admission No. $admissionNumber  $classSection'),
                     ],
                   ),
@@ -64,11 +71,20 @@ classSection=prefs.getString(Constants.classSection)?? 'No classsection saved lo
               ],
             ),
           ),
-          TextButton(onPressed: (){Navigator.push(context,MaterialPageRoute(builder: (context)=>SharedPreferencesDetailsScreen()));}, child: const Text("View shared")),
+          TextButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            SharedPreferencesDetailsScreen()));
+              },
+              child: const Text("View shared")),
           Container(
-            padding: const EdgeInsets.all(10),
-            color: Colors.white,
-            child: DashboardSectionCard(title: 'E-Learning')), // Custom widget for section title
+              padding: const EdgeInsets.all(10),
+              color: Colors.white,
+              child: DashboardSectionCard(
+                  title: 'E-Learning')), // Custom widget for section title
           // Repeat DashboardSectionCard for each section
         ],
       ),
@@ -79,14 +95,15 @@ classSection=prefs.getString(Constants.classSection)?? 'No classsection saved lo
 class DashboardSectionCard extends StatelessWidget {
   final String title;
 
-  DashboardSectionCard({required this.title});
+  DashboardSectionCard({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
     return Card(
-     color:Colors.white,
+      color: Colors.white,
       elevation: 10.0, // Adjust the elevation for desired shadow intensity
-      margin: const EdgeInsets.symmetric(horizontal: 15.0), // Margin around the card
+      margin: const EdgeInsets.symmetric(
+          horizontal: 15.0), // Margin around the card
       child: Column(
         children: [
           Padding(
@@ -96,7 +113,8 @@ class DashboardSectionCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -108,39 +126,34 @@ class DashboardSectionCard extends StatelessWidget {
   }
 }
 
-
-
-
 class DashboardGrid extends StatelessWidget {
+  List<IconDataItem> iconDataItems = [
+    IconDataItem(icon: Icons.school, label: 'Homework'),
+    IconDataItem(icon: Icons.book, label: 'Daily\nAssigne'),
+    IconDataItem(icon: Icons.computer, label: 'Lesson Plan'),
+    IconDataItem(icon: Icons.science, label: 'online Examination'),
+    IconDataItem(icon: Icons.calculate, label: 'Download Center'),
+    IconDataItem(icon: Icons.history_edu, label: 'Online Course'),
+    IconDataItem(icon: Icons.sports_cricket, label: 'Zoom Live Classes'),
+    IconDataItem(icon: Icons.palette, label: 'Gmeet Live classes'),
+  ];
 
-List<IconDataItem> iconDataItems = [
-  IconDataItem(icon: Icons.school, label: 'Homework'),
-  IconDataItem(icon: Icons.book, label: 'Daily\nAssigne'),
-  IconDataItem(icon: Icons.computer, label: 'Lesson Plan'),
-IconDataItem(icon: Icons.science, label: 'online Examination'),
-IconDataItem(icon: Icons.calculate, label: 'Download Center'),
-IconDataItem(icon: Icons.history_edu, label: 'Online Course'),
-IconDataItem(icon: Icons.sports_cricket, label: 'Zoom Live Classes'),
-IconDataItem(icon: Icons.palette, label: 'Gmeet Live classes'),
-
- 
-];
-
-
+  DashboardGrid({super.key});
 
   @override
   Widget build(BuildContext context) {
     // Assuming 4 icons per row
     return GridView.builder(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(), // to disable GridView's scrolling
+      physics:
+          const NeverScrollableScrollPhysics(), // to disable GridView's scrolling
       itemCount: iconDataItems.length, // Number of icons
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
         childAspectRatio: 1,
       ),
       itemBuilder: (BuildContext context, int index) {
-        return  IconTile(
+        return IconTile(
           iconData: iconDataItems[index].icon,
           label: iconDataItems[index].label,
         ); // Custom widget for each icon tile
@@ -153,7 +166,7 @@ class IconTile extends StatelessWidget {
   final IconData iconData;
   final String label;
 
-  IconTile({required this.iconData, required this.label});
+  IconTile({super.key, required this.iconData, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -172,11 +185,9 @@ class IconTile extends StatelessWidget {
   }
 }
 
-
 class IconDataItem {
   final IconData icon;
   final String label;
 
   IconDataItem({required this.icon, required this.label});
 }
-

@@ -1,14 +1,15 @@
-import 'dart:async';
 import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:drighna_ed_tech/screens/students/dashboard.dart';
+import 'package:drighna_ed_tech/screens/take_url_screen.dart';
 import 'package:drighna_ed_tech/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dashboard.dart';
+
+
 import 'login_screen.dart';
 import 'student_fees.dart';
-import 'take_url_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -18,128 +19,120 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  Timer? _timer;
-
   @override
   void initState() {
     super.initState();
-    initialization();
+    _initialization();
   }
 
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
+  Future<void> _initialization() async {
+    await _checkInternetConnection();
+    await _checkInitialScreen();
   }
 
-  void initialization() async {
-    checkInternetConnection();
-  }
-
-  void checkInternetConnection() async {
+  Future<void> _checkInternetConnection() async {
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult == ConnectivityResult.none) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          backgroundColor: Colors.transparent, // Set background to transparent
-          content: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              CircularProgressIndicator(),
-              Text(
-                'No internet connection! Waiting for connection...',
-                style:
-                    TextStyle(color: Colors.black), // Set text color to black
-              ),
-            ],
+          content: ListTile(
+            // leading: CircularProgressIndicator(),
+            title: Text(
+              'No internet connection! Waiting for connection...',
+              style: TextStyle(color: Colors.black),
+            ),
           ),
-          behavior: SnackBarBehavior
-              .floating, // Use floating behavior for better appearance with transparent background
-          elevation: 0, // Remove shadow
+          backgroundColor: Colors.transparent,
+          behavior: SnackBarBehavior.floating,
+          elevation: 0,
         ),
       );
-
-      // Retry checking for internet connection every 5 seconds
-      _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
-        checkInternetConnection();
-      });
-    } else {
-      // If there is an internet connection, cancel the timer and proceed
-      _timer?.cancel();
-      checkInitialScreen();
+      await Future.delayed(Duration(seconds: 5));
+      await _checkInternetConnection();
     }
   }
 
-  Future<void> checkInitialScreen() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool isUrlTaken = prefs.getBool('isUrlTaken') ?? false;
-    bool isLoggedin = prefs.getBool(Constants.isLoggegIn) ?? false;
-    bool isLock = prefs.getBool(Constants.isLock) ?? false;
-    String apiUrl =
+  Future<void> _checkInitialScreen() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isUrlTaken = prefs.getBool('isUrlTaken') ?? false;
+    final isLoggedin = prefs.getBool(Constants.isLoggegIn) ?? false;
+    final isLock = prefs.getBool(Constants.isLock) ?? false;
+    final apiUrl =
         prefs.getString(Constants.apiUrl) ?? Constants.domain + "/api/";
 
     if (isUrlTaken) {
-      checkMaintenanceMode(apiUrl, isLoggedin, isLock);
+      await _checkMaintenanceMode(apiUrl, isLoggedin, isLock);
     } else {
-      navigateToTakeUrlScreen();
+      _navigateToTakeUrlScreen();
     }
   }
 
-  void checkMaintenanceMode(String apiUrl, bool isLoggedin, bool isLock) async {
-    final response = await http.post(
-      Uri.parse("$apiUrl" + Constants.getMaintenanceModeStatusUrl),
-      headers: {"Content-Type": "application/json"},
-    );
+  Future<void> _checkMaintenanceMode(
+      String apiUrl, bool isLoggedin, bool isLock) async {
+    try {
+      final response = await http.post(
+        Uri.parse("$apiUrl" + Constants.getMaintenanceModeStatusUrl),
+        headers: {
+          'Client-Service': Constants.clientService,
+          'Auth-Key': Constants.authKey,
+          'Content-Type': 'application/json; charset=utf-8',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      final result = json.decode(response.body);
-      bool maintenanceMode = result['maintenance_mode'] == '1';
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setBool('maintenance_mode', maintenanceMode);
+      if (response.statusCode == 200) {
+        final result = json.decode(response.body);
+        final maintenanceMode = result['maintenance_mode'] == '1';
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('maintenance_mode', maintenanceMode);
 
-      if (!maintenanceMode) {
-        navigateBasedOnLoginStatus(isLoggedin, isLock);
+        if (!maintenanceMode) {
+          _navigateBasedOnLoginStatus(isLoggedin, isLock);
+        } else {
+          _showMaintenanceMessage();
+        }
       } else {
-        showMaintenanceMessage();
+        // Handle the error or retry
+        debugPrint("Received non-200 status code: ${response.statusCode}");
       }
-    } else {
-      print("Error checking maintenance mode");
+    } catch (e) {
+      // Handle the exception, you could retry or show an error message
+      debugPrint("Exception caught while checking maintenance mode: $e");
     }
   }
 
-  void navigateBasedOnLoginStatus(bool isLoggedin, bool isLock) {
+  void _navigateBasedOnLoginStatus(bool isLoggedin, bool isLock) {
     if (isLoggedin) {
       if (isLock) {
-        navigateToStudentFees();
+        _navigateToStudentFees();
       } else {
-        navigateToNewDashboard();
+        _navigateToNewDashboard();
       }
     } else {
-      navigateToLoginScreen();
+      _navigateToLoginScreen();
     }
   }
 
-  void navigateToTakeUrlScreen() {
+  void _navigateToTakeUrlScreen() {
     Navigator.of(context)
         .pushReplacement(MaterialPageRoute(builder: (_) => TakeUrlScreen()));
   }
 
-  void navigateToNewDashboard() {
+  void _navigateToNewDashboard() {
     Navigator.of(context)
         .pushReplacement(MaterialPageRoute(builder: (_) => DashboardScreen()));
   }
 
-  void navigateToLoginScreen() {
+  void _navigateToLoginScreen() {
     Navigator.of(context)
-        .pushReplacement(MaterialPageRoute(builder: (_) => LoginPage()));
+        .pushReplacement(MaterialPageRoute(builder: (_) => LoginScreen()));
   }
 
-  void navigateToStudentFees() {
+  void _navigateToStudentFees() {
     Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const StudentFees()));
   }
 
-  void showMaintenanceMessage() {
+  void _showMaintenanceMessage() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -149,9 +142,7 @@ class _SplashScreenState extends State<SplashScreen> {
           actions: <Widget>[
             TextButton(
               child: const Text("OK"),
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
+              onPressed: () => Navigator.of(context).pop(),
             ),
           ],
         );
@@ -171,11 +162,8 @@ class _SplashScreenState extends State<SplashScreen> {
             fit: BoxFit.cover,
           ),
         ),
-        child: Center(
-          child: _timer == null
-              ? Image.asset("assets/logo_small.png",
-                  width: 150.0, height: 100.0)
-              : const CircularProgressIndicator(),
+        child: const Center(
+          child: CircularProgressIndicator(),
         ),
       ),
     );

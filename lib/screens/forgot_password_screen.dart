@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({Key? key}) : super(key: key);
 
@@ -15,7 +16,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage("assets/img_login_background.png"), 
+            image: AssetImage("assets/img_login_background.png"),
             fit: BoxFit.cover,
           ),
         ),
@@ -23,37 +24,34 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-            
-             
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: Container(
-  decoration: BoxDecoration(
-    boxShadow: [
-      BoxShadow(
-        color: Colors.grey.withOpacity(0.5),
-        spreadRadius: 1,
-        blurRadius: 30,
-        offset: const Offset(0, 10), // changes position of shadow
-      ),
-    ],
-  ),
-  child: TextField(
-    decoration: InputDecoration(
-      filled: true,
-      fillColor: Colors.white,
-      hintText: 'Email',
-      prefixIcon: const Icon(Icons.email),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30),
-        borderSide: BorderSide.none,
-      ),
-    ),
-    keyboardType: TextInputType.emailAddress,
-  ),
-)
-
-              ),
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 1,
+                          blurRadius: 30,
+                          offset:
+                              const Offset(0, 10), // changes position of shadow
+                        ),
+                      ],
+                    ),
+                    child: TextField(
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.white,
+                        hintText: 'Email',
+                        prefixIcon: const Icon(Icons.email),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                  )),
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -64,44 +62,40 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ],
               ),
               const SizedBox(height: 20),
-                                   Padding(
-                        padding: const EdgeInsets.only(right: 15.0),
-                        child: ElevatedButton(
-                          onPressed: () {
-                         
-                          },
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
-                                const Color.fromARGB(255, 141, 127, 10)),
-                            padding: MaterialStateProperty.all(
-                                const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 5)),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                            ),
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                             
-                              Text(
-                                'SUBMIT',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Icon(
-                                Icons.arrow_forward,
-                                color: Colors.white,
-                              ),
-                            ],
-                          ),
+              Padding(
+                padding: const EdgeInsets.only(right: 15.0),
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(
+                        const Color.fromARGB(255, 141, 127, 10)),
+                    padding: MaterialStateProperty.all(
+                        const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 5)),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'SUBMIT',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
+                      Icon(
+                        Icons.arrow_forward,
+                        color: Colors.white,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -117,11 +111,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         });
       },
       style: ElevatedButton.styleFrom(
-        foregroundColor:  isStudent == forStudent ? const Color.fromARGB(255, 141, 127, 10) : Colors.grey[300],
-
-        backgroundColor:  isStudent == forStudent ? const Color.fromARGB(255, 141, 127, 10) : Colors.grey[300],
-
-        
+        foregroundColor: isStudent == forStudent
+            ? const Color.fromARGB(255, 141, 127, 10)
+            : Colors.grey[300],
+        backgroundColor: isStudent == forStudent
+            ? const Color.fromARGB(255, 141, 127, 10)
+            : Colors.grey[300],
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10), // Rectangular shape
@@ -131,7 +126,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         text,
         textAlign: TextAlign.center,
         style: TextStyle(
-          color: isStudent == forStudent ? Colors.white : Colors.black, // Text color based on selection
+          color: isStudent == forStudent
+              ? Colors.white
+              : Colors.black, // Text color based on selection
         ),
       ),
     );

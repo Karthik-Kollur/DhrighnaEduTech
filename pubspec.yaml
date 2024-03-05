@@ -39,6 +39,8 @@ dependencies:
   http: ^1.2.1
   connectivity_plus: ^5.0.2
   url_launcher: ^6.2.5
+  permission_handler: ^11.3.0
+  flutter_riverpod: ^2.4.10
 
 dev_dependencies:
   flutter_test:
@@ -68,6 +70,7 @@ flutter:
     - assets/img_login_background.png
     - assets/placeholder_user.png
     - assets/splash_logo.png
+    - assets/placeholder_user.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

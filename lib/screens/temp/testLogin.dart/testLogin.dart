@@ -1,10 +1,6 @@
 import 'dart:convert';
-import 'dart:math';
-
-import 'package:drighna_ed_tech/screens/forgot_password_screen.dart';
-import 'package:drighna_ed_tech/screens/student_fees.dart';
 import 'package:drighna_ed_tech/screens/students/dashboard.dart';
-import 'package:drighna_ed_tech/screens/take_url_screen.dart';
+import 'package:drighna_ed_tech/screens/forgot_password_screen.dart';
 import 'package:drighna_ed_tech/screens/temp/shared_pref.dart';
 import 'package:drighna_ed_tech/utils/constants.dart';
 import 'package:flutter/material.dart';
@@ -12,14 +8,14 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class LoginPageTest extends StatefulWidget {
+  const LoginPageTest({Key? key}) : super(key: key);
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _LoginPageTestState createState() => _LoginPageTestState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginPageTestState extends State<LoginPageTest> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
@@ -34,24 +30,6 @@ class _LoginScreenState extends State<LoginScreen> {
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
-  }
-
-  String _appLogoUrl = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _loadAppLogo();
-  }
-
-  Future<void> _loadAppLogo() async {
-    final prefs = await SharedPreferences.getInstance();
-    String baseLogoUrl = prefs.getString(Constants.appLogo) ?? '';
-    setState(() {
-      // Append a random query parameter to the URL to avoid caching
-      _appLogoUrl = '$baseLogoUrl?${Random().nextInt(100)}';
-    });
-    print("App Logo url is >>>>>>>>>>>>>>>>>" + _appLogoUrl);
   }
 
   Future<void> _login() async {
@@ -93,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
             await _handleParentRole(data['record'], data['message']);
           } else if (data['role'] == 'student') {
             _handleStudentRole(data['record'], data['message']);
-
+            await _navigateToDashboard();
             _showSnackBar(data['message'] + "Student");
           }
           // else{
@@ -129,22 +107,6 @@ class _LoginScreenState extends State<LoginScreen> {
     await prefs.setString(
         Constants.superadmin_restriction, recordData['superadmin_restriction']);
 
-    String dateFormat = recordData["date_format"] ?? "";
-    // Convert the date format from API response to Dart's DateFormat
-    dateFormat = dateFormat
-        .replaceAll("Y", "yyyy")
-        .replaceAll("m", "MM")
-        .replaceAll("d", "dd");
-
-    // Saving the date format
-    await prefs.setString("dateFormat", dateFormat);
-
-    // Creating and saving the datetime format
-    String datetimeFormat =
-        "$dateFormat HH:mm:ss"; // Assuming you want to append time in HH:mm:ss format
-
-    await prefs.setString("datetimeFormat", datetimeFormat);
-
     await prefs.setString(
         Constants.langCode, recordData['language']['short_code']);
 
@@ -168,7 +130,18 @@ class _LoginScreenState extends State<LoginScreen> {
     await prefs.setString(Constants.parentsId, recordData['id']);
 
     // Handling parent role
-    final children = recordData['parent_childs'];
+    final children = recordData['parent_childs'].map((child) {
+      return {
+        'student_id': child['student_id'],
+        'class': child['class'],
+        'section': child['section'],
+        'class_id': child['class_id'],
+        'section_id': child['section_id'],
+        'name': child['name'],
+        'image': child['image'] ??
+            'default_image_path', // Provide a default image path if null
+      };
+    }).toList();
 
     print(children);
     print(children.length);
@@ -191,9 +164,6 @@ class _LoginScreenState extends State<LoginScreen> {
       // await prefs.setString('selectedChild', jsonEncode(children[0]));
       await _navigateToDashboard();
     } else {
-      setState(() {
-        _isLoading = false;
-      });
       //if parent has multiple children
       print(">>>>>>>>>>>>>in multiple child section>>>>>>>>>>>>" +
           children.toString());
@@ -219,6 +189,18 @@ class _LoginScreenState extends State<LoginScreen> {
     // Example: await prefs.setString('parentRoleData', recordData['someParentData']);
     // Navigate to dashboard or show child list based on the role.
     // await _navigateToDashboard();
+  }
+
+  void _handleStudentRole(Map<String, dynamic> recordData, String data) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(Constants.isLoggegIn, true);
+    await prefs.setString(Constants.classSection,
+        recordData['class'] + " (" + recordData['section'] + ")");
+    await prefs.setString(Constants.studentId, recordData['student_id']);
+    await prefs.setString(Constants.admission_no, recordData['admission_no']);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(data + "Student")),
+    );
   }
 
   void showChildList(BuildContext context) {
@@ -261,7 +243,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   itemCount: childNameList
                       .length, // Assume childNameList is a list of strings
                   itemBuilder: (BuildContext context, int index) {
-                    
                     return Card(
                       color: Colors.white,
                       elevation: 10,
@@ -324,7 +305,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               "studentName", childNameList[index]);
                           // await prefs.setString('selectedChild', jsonEncode(children[0]));
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
+                            SnackBar(
                                 content: Text(
                                     "Successfully loged in parent with one of his child")),
                           );
@@ -343,115 +324,6 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       },
     );
-  }
-
-  void _handleStudentRole(Map<String, dynamic> recordData, String data) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(Constants.isLoggegIn, true);
-    await prefs.setString(Constants.classSection,
-        recordData['class'] + " (" + recordData['section'] + ")");
-    await prefs.setString(Constants.studentId, recordData['student_id']);
-    await prefs.setString(Constants.admission_no, recordData['admission_no']);
-    String studId = prefs.getString(Constants.studentId) ?? '';
-    getCurrencyDataFromApi(studId);
-
-    isProfileLock(context, studId);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(data + "Student")),
-    );
-  }
-
-  Future<void> getCurrencyDataFromApi(String stdId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final apiUrl = prefs.getString("apiUrl") ?? "";
-    final userId = prefs.getString("userId") ?? "";
-    final accessToken = prefs.getString("accessToken") ?? "";
-    final url = "$apiUrl${Constants.getStudentCurrencyUrl}";
-
-    // Prepare headers and body
-    final headers = {
-      "Client-Service": Constants.clientService,
-      "Auth-Key": Constants.authKey,
-      "Content-Type": Constants.contentType,
-      "User-ID": userId,
-      "Authorization": accessToken,
-    };
-
-    final body = jsonEncode({
-      "student_id": stdId,
-    });
-
-    try {
-      final response = await http.post(
-        Uri.parse(url),
-        headers: headers,
-        body: body,
-      );
-      print(">>>>>>>>>>>>>>>>>>>>" + stdId);
-      print(">>>>>>>>>>>>>>>>>>>>" + response.body);
-      print(">>>>>>>>>>>>>>>>>>>>" + url);
-
-      if (response.statusCode == 200) {
-        final result = jsonDecode(response.body);
-        // final data = result['result'];
-
-        // Save the fetched currency data to SharedPreferences
-        await prefs.setString(Constants.currency_price, result['base_price']);
-        await prefs.setString(Constants.currency_short_name, result['name']);
-        await prefs.setString(Constants.currency, result['symbol']);
-      } else {
-        print('Failed to fetch data from API');
-        // Handle HTTP error
-      }
-    } catch (e) {
-      print('An error occurred: $e');
-      // Handle exceptions
-    }
-  }
-
-  Future<void> isProfileLock(BuildContext context, stdId) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String apiUrl = prefs.getString('apiUrl') ?? '';
-    final String url = apiUrl + Constants.lock_student_panelUrl;
-    final body = jsonEncode({
-      "student_id": stdId,
-    });
-    try {
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {
-          'Client-Service': Constants.clientService,
-          'Auth-Key': Constants.authKey,
-          'Content-Type': Constants.contentType,
-          'User-ID': prefs.getString('userId') ?? '',
-          'Authorization': prefs.getString('accessToken') ?? '',
-        },
-        body: body,
-      );
-
-      if (response.statusCode == 200) {
-        final object = json.decode(response.body);
-        final isLock = object['is_lock'].toString();
-        print('is_lock: $isLock');
-
-        await prefs.setBool('isLock', isLock == '0' ? false : true);
-
-        Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) =>
-              isLock == '0' ? DashboardScreen() : const StudentFees(),
-        ));
-      } else {
-        // Handle the case where the server returns a non-200 status code.
-        print('Server error: ${response.statusCode}');
-      }
-    } catch (e) {
-      // Handle any errors that occur during the HTTP request.
-      print('HTTP request error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('API Error: ${e.toString()}')),
-      );
-    }
   }
 
   Future<void> _navigateToDashboard() async {
@@ -474,14 +346,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void changeUrl(BuildContext context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool("isLoggegIn", false);
-    prefs.setBool("isUrlTaken", false);
-    Navigator.of(context)
-        .pushReplacement(MaterialPageRoute(builder: (_) => TakeUrlScreen())); //
-  }
-
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
@@ -491,7 +355,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator())
           : _buildLoginForm(),
     );
   }
@@ -511,18 +375,9 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                // Image.asset('assets/splash_logo.png',
-                //     width: 150.0, height: 50.0),
-                _appLogoUrl.isEmpty
-                    ? const CircularProgressIndicator() // Show loading indicator while fetching the logo
-                    : Image.network(
-                        _appLogoUrl,
-                        width: 100, // Set your desired width
-                        height: 100, // And height
-                        color: Colors.black,
-                        fit: BoxFit.contain,
-                      ),
-                const SizedBox(height: 3),
+                Image.asset('assets/splash_logo.png',
+                    width: 150.0, height: 50.0),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: _usernameController,
                   decoration: InputDecoration(
@@ -630,19 +485,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
-
-        //  Positioned(
-        //           top: 200, // Adjust the position as needed
-        //           left: MediaQuery.of(context).size.width / 2 - 50, // Center the logo
-        //           child: _appLogoUrl.isEmpty
-        //               ? CircularProgressIndicator() // Show loading indicator while fetching the logo
-        //               : Image.network(
-        //                   _appLogoUrl,
-        //                   width: 200, // Set your desired width
-        //                   height: 100, // And height
-        //                   color: Colors.black,
-        //                 ),
-        //         ),
         Positioned(
           bottom: 0,
           left: 0,
@@ -657,11 +499,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: const Text('Privacy Policy',
                       style: TextStyle(color: Colors.black)),
                 ),
-                IconButton(
-                    onPressed: () {
-                      changeUrl(context);
-                    },
-                    icon: const Icon(Icons.public)),
+                IconButton(onPressed: () {}, icon: const Icon(Icons.public)),
               ],
             ),
           ),
