@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:drighna_ed_tech/provider/user_data_provider.dart';
+import 'package:drighna_ed_tech/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,6 +16,8 @@ class StudentProfileDetails extends ConsumerStatefulWidget {
 class _StudentProfileDetailsState extends ConsumerState<StudentProfileDetails>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  String userName="";
+  String domainUrl="";
 
   @override
   void initState() {
@@ -41,10 +44,12 @@ class _StudentProfileDetailsState extends ConsumerState<StudentProfileDetails>
   @override
   Widget build(BuildContext context) {
     final studentProfile = ref.watch(studentProfileProvider);
-    final studentImage =
-        "https://phpstack-1193026-4203367.cloudwaysapps.com/${studentProfile!.imgUrl}";
+    
+    
+   final  studentImage =
+        "$domainUrl${studentProfile?.imgUrl}";
     final barcodeImage =
-        "https://phpstack-1193026-4203367.cloudwaysapps.com${studentProfile.barcodeUrl}";
+        "$domainUrl${studentProfile?.barcodeUrl}";
 
     print(studentImage);
     print(barcodeImage);
@@ -72,23 +77,29 @@ class _StudentProfileDetailsState extends ConsumerState<StudentProfileDetails>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(studentProfile.name,
+                            Text(userName,
                                 style: TextStyle(
                                     fontSize: 20, fontWeight: FontWeight.bold)),
                             Text(studentProfile.classInfo),
                             Text("Adm. No.  " + studentProfile.admissionNo),
                             Text("Roll Number  " + studentProfile.rollNo),
-                            CachedNetworkImage(
-                              imageUrl: barcodeImage,
-                              placeholder: (context, url) => Row(
-                                children: [
-                                  Text("Barcode"),
-                                  // CircularProgressIndicator(),
-                                ],
-                              ),
-                              errorWidget: (context, url, error) =>
-                                  Icon(Icons.error),
-                              fit: BoxFit.cover,
+                            Row(
+                              children: [
+                                Text("Barcode"),
+                                SizedBox(width: 5,),
+                                CachedNetworkImage(
+                                  imageUrl: barcodeImage,
+                                  placeholder: (context, url) => Row(
+                                    children: [
+                                      Text("Barcode"),
+                                      // CircularProgressIndicator(),
+                                    ],
+                                  ),
+                                  errorWidget: (context, url, error) =>
+                                      Icon(Icons.error),
+                                  fit: BoxFit.cover,
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -127,15 +138,73 @@ class _StudentProfileDetailsState extends ConsumerState<StudentProfileDetails>
                   controller: _tabController,
                   children: [
                     ListView(
-                      children: [
-                        ListTile(
-                          leading: Text("title"),
-                          trailing: Text("value"),
-                        ),
+  children: [
+    ListTile(
+       dense: true, // makes the ListTile more compact
+   
+      leading: Text("Admission Date"),
+      trailing: Text(studentProfile.admissionDate.toString()),
+    ),
+    ListTile(
+      leading: Text("Date Of Birth"),
+      trailing: Text(studentProfile.dob.toString()),
+    ),
+    ListTile(
+      leading: Text("Gender"),
+      trailing: Text(studentProfile.gender.toString()),
+    ),
+    ListTile(
+      leading: Text("Category"),
+      trailing: Text(studentProfile.category.toString()),
+    ),
+    ListTile(
+      leading: Text("Mobile Number"),
+      trailing: Text(studentProfile.mobileNo.toString()),
+    ),
+    ListTile(
+      leading: Text("Caste"),
+      trailing: Text(studentProfile.cast.toString()),
+    ),
+    ListTile(
+      leading: Text("Religion"),
+      trailing: Text(studentProfile.religion.toString()),
+    ),
+    ListTile(
+      leading: Text("Email"),
+      trailing: Text(studentProfile.email.toString()),
+    ),
+    ListTile(
+      leading: Text("Current Address"),
+      trailing: Text(studentProfile.currentAddress.toString()),
+    ),
+    ListTile(
+      leading: Text("Permanent Address"),
+      trailing: Text(studentProfile.permanentAddress.toString()),
+    ),
+    ListTile(
+      leading: Text("Blood Group"),
+      trailing: Text(studentProfile.bloodGroup.toString()),
+    ),
+    ListTile(
+      leading: Text("Height"),
+      trailing: Text(studentProfile.height.toString()),
+    ),
+    ListTile(
+      leading: Text("Weight"),
+      trailing: Text(studentProfile.weight.toString()),
+    ),
+    ListTile(
+      leading: Text("Note"),
+      trailing: Text(studentProfile.note.toString()),
+    ),
+    ListTile(
+      leading: Text("Medical History"),
+      trailing: Text("Ear Infections"), // Assuming this is a static value as it's not present in your model
+    ),
+    // Add any other ListTiles you need for other attributes
+  ],
+),
 
-                        // Add more list items...
-                      ],
-                    ),
                     Center(child: Text("Parents Details")),
                     Center(child: Text("Other Details")),
                   ],
@@ -150,6 +219,9 @@ class _StudentProfileDetailsState extends ConsumerState<StudentProfileDetails>
     if (await isConnectingToInternet()) {
       final prefs = await SharedPreferences.getInstance();
       String apiUrl = prefs.getString("apiUrl") ?? "";
+
+      userName= prefs.getString(Constants.userName) ?? "";
+      domainUrl=prefs.getString(Constants.appDomain) ?? "";
       final body = jsonEncode({
         "student_id": prefs.getString("studentId"),
       });

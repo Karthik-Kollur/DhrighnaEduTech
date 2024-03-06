@@ -338,9 +338,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         "deviceToken": device_token,
                         // Add other logout parameters here as needed
                       };
-                   
 
-                      loginOutApi(context,logoutParams);
+                      loginOutApi(context, logoutParams);
                     },
                   ),
                 ],
@@ -813,14 +812,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       Row(
                         children: [
                           CachedNetworkImage(
-        imageUrl: userData['userImage']!,
-        placeholder: (context, url) =>  Image.asset(
-                                'assets/placeholder_user.png',height: 55,width: 55,),
-        errorWidget: (context, url, error) =>  Image.asset(
-                                'assets/placeholder_user.png',height: 55,width: 55,),
-        fit: BoxFit.cover,
-      ),
-                           SizedBox(
+                            imageUrl: userData['userImage']!,
+                            placeholder: (context, url) => Image.asset(
+                              'assets/placeholder_user.png',
+                              height: 55,
+                              width: 55,
+                            ),
+                            errorWidget: (context, url, error) => Image.asset(
+                              'assets/placeholder_user.png',
+                              height: 55,
+                              width: 55,
+                            ),
+                            fit: BoxFit.cover,
+                          ),
+                          const SizedBox(
                               width: 20), // Space between the avatar and text
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -858,7 +863,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                                 .fontSize, // Adjust as needed
                                           ),
                                         )
-                                      : SizedBox(),
+                                      : const SizedBox(),
                                   Text(
                                     "${userData['classSection']}",
                                   )
@@ -869,7 +874,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           ),
                         ],
                       ),
-                      userData['loginType'] == 'parent'
+                      userData['loginType'] == 'parent' &&  userData['hasMultipleChild']=="true"
                           ? Row(
                               children: [
                                 const SizedBox(
@@ -939,7 +944,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                 ),
                               ],
                             )
-                          : SizedBox()
+                          : const SizedBox()
                       // Add more widgets as needed
                     ],
                   ),
@@ -952,36 +957,37 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               error: (error, stack) => Text('Error: $error'),
             ),
             ListTile(
-              leading: Icon(Icons.home),
+              leading: const Icon(Icons.home),
               title: const Text('Home'),
               onTap: () {
                 Navigator.pushNamed(context, '/home');
               },
             ),
             ListTile(
-               leading: Icon(Icons.person),
+              leading: const Icon(Icons.person),
               title: const Text('Profile'),
               onTap: () {
                 Navigator.pushNamed(context, '/profile');
               },
             ),
             ListTile(
-               leading: Icon(Icons.info),
+              leading: const Icon(Icons.info),
               title: const Text('About'),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (ctx)=>ProfileScreen()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (ctx) => ProfileScreen()));
                 // Navigator.pushNamed(context, '/about');
               },
             ),
             ListTile(
-               leading: Icon(Icons.settings),
+              leading: const Icon(Icons.settings),
               title: const Text('Settings'),
               onTap: () {
                 Navigator.pushNamed(context, '/settings');
               },
             ),
             ListTile(
-               leading: Icon(Icons.logout),
+              leading: const Icon(Icons.logout),
               title: const Text('Logout'),
               onTap: () async {
                 // Perform logout logic, then:
@@ -990,13 +996,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 if (isConnected) {
                   // Perform your API logout call
                   Map<String, dynamic> logoutParams = {
-    "deviceToken": device_token,
-  };
-                  
+                    "deviceToken": device_token,
+                  };
 
                   // Call the Logout function with the required deviceToken
                   await loginOutApi(context, logoutParams);
-                 
                 } else {
                   _showSnackBar("No internet connection");
                 }
@@ -1033,19 +1037,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                       builder: (ctx) =>
                                           SharedPreferencesDetailsScreen()));
                             },
-                            child:  CachedNetworkImage(
-        imageUrl: userData['userImage']!,
-        placeholder: (context, url) =>  Image.asset(
-                                'assets/placeholder_user.png',height: 55,width: 55,),
-        errorWidget: (context, url, error) =>  Image.asset(
-                                'assets/placeholder_user.png',height: 55,width: 55,),
-        fit: BoxFit.cover,
-      ),
-                            
-                            
-                            
-                            
-                           
+                            child: CachedNetworkImage(
+                              imageUrl: userData['userImage']!,
+                              placeholder: (context, url) => Image.asset(
+                                'assets/placeholder_user.png',
+                                height: 55,
+                                width: 55,
+                              ),
+                              errorWidget: (context, url, error) => Image.asset(
+                                'assets/placeholder_user.png',
+                                height: 55,
+                                width: 55,
+                              ),
+                              fit: BoxFit.cover,
+                            ),
                           ),
                           Text(
                             userName,
@@ -1081,51 +1086,50 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  
-  Future<void> loginOutApi(BuildContext context,  logoutParams) async {
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  String apiUrl = prefs.getString("apiUrl") ?? "";
-  String logoutUrl = apiUrl + Constants.logoutUrl; // Your logout endpoint
-  Map<String, String> headers = {
-    "Client-Service": Constants.clientService,
-    "Auth-Key": Constants.authKey,
-    "Content-Type": "application/json",
-    "User-ID": prefs.getString("userId") ?? "",
-    "Authorization": prefs.getString("accessToken") ?? "",
-  };
-  
- 
+  Future<void> loginOutApi(BuildContext context, logoutParams) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String apiUrl = prefs.getString("apiUrl") ?? "";
+    String logoutUrl = apiUrl + Constants.logoutUrl; // Your logout endpoint
+    Map<String, String> headers = {
+      "Client-Service": Constants.clientService,
+      "Auth-Key": Constants.authKey,
+      "Content-Type": "application/json",
+      "User-ID": prefs.getString("userId") ?? "",
+      "Authorization": prefs.getString("accessToken") ?? "",
+    };
 
-  // Log the logout details as a JSON string
-  print("Logout Details==${jsonEncode(logoutParams)}");
+    // Log the logout details as a JSON string
+    print("Logout Details==${jsonEncode(logoutParams)}");
 
-  // Step 2: Perform the logout request
-  try {
-    final response = await http.post(
-      Uri.parse(logoutUrl),
-      headers: headers,
-      body: jsonEncode(logoutParams),
-    );
+    // Step 2: Perform the logout request
+    try {
+      final response = await http.post(
+        Uri.parse(logoutUrl),
+        headers: headers,
+        body: jsonEncode(logoutParams),
+      );
 
-    if (response.statusCode == 200) {
-      final result = json.decode(response.body);
-      if (result["status"] == "1") {
-        await prefs.setBool("isLoggedIn", false);
-      
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => LoginScreen()), // Navigate to the LoginScreen
-          (Route<dynamic> route) => false,
-        );
+      if (response.statusCode == 200) {
+        final result = json.decode(response.body);
+        if (result["status"] == "1") {
+          await prefs.setBool("isLoggedIn", false);
+
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+                builder: (context) =>
+                    const LoginScreen()), // Navigate to the LoginScreen
+            (Route<dynamic> route) => false,
+          );
+        } else {
+          _showSnackBar("status is 0");
+        }
       } else {
-       _showSnackBar("status is 0");
+        _showSnackBar("status code is not 200");
       }
-    } else {
-      _showSnackBar("status code is not 200");
+    } catch (e) {
+      _showSnackBar("Error occured $e");
     }
-  } catch (e) {
-    _showSnackBar("Error occured $e");
   }
-}
 
   Future<void> getAcademicsFromApi(bodyParams) async {
     print("Getting academics data...");
@@ -1276,5 +1280,3 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     }
   }
 }
-
-

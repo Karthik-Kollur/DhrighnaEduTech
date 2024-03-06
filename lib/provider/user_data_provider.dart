@@ -19,6 +19,7 @@ final decoratorProvider =
          
         "",
         'loginType': prefs.getString(Constants.loginType)??"",
+      'hasMultipleChild': prefs.getBool('hasMultipleChild').toString(),
     'primaryColor': prefs.getString(Constants.primaryColour) ?? "",
     'secondaryColor': prefs.getString(Constants.secondaryColour) ?? "",
   };
@@ -77,28 +78,3 @@ class StudentProfileNotifier extends StateNotifier<StudentProfile?> {
 
 
 
-// class ProfileScreen extends ConsumerWidget {
-//   @override
-//   Widget build(BuildContext context, WidgetRef ref) {
-//     final studentProfile = ref.watch(studentProfileProvider);
-
-//     // Fetch the student profile when the widget is built for the first time
-//     useEffect(() {
-//       ref.read(studentProfileProvider.notifier).fetchStudentProfile('your_api_url', '{"key":"value"}');
-//       return null;
-//     }, []);
-
-//     return Scaffold(
-//       appBar: AppBar(title: Text('Student Profile')),
-//       body: studentProfile != null
-//           ? ListView(
-//               // Your ListView content goes here
-//               children: [
-//                 Text('Name: ${studentProfile.name}'),
-//                 // More widgets displaying profile data...
-//               ],
-//             )
-//           : Center(child: CircularProgressIndicator()), // Show loading spinner while fetching data
-//     );
-//   }
-// }
