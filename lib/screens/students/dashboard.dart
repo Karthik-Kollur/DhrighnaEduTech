@@ -1,10 +1,13 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:drighna_ed_tech/models/album1.dart';
 import 'package:drighna_ed_tech/screens/login_screen.dart';
 import 'package:drighna_ed_tech/screens/temp/shared_pref.dart';
+import 'package:drighna_ed_tech/screens/temp/test_profileScreen.dart';
 import 'package:drighna_ed_tech/utils/constants.dart';
+import 'package:drighna_ed_tech/widgets/dashboard_cards.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -809,12 +812,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     children: [
                       Row(
                         children: [
-                          const CircleAvatar(
-                            radius: 30, // Adjust radius to change the size
-                            backgroundImage: AssetImage(
-                                'assets/placeholder_user.png'), // Local image
-                          ),
-                          const SizedBox(
+                          CachedNetworkImage(
+        imageUrl: userData['userImage']!,
+        placeholder: (context, url) =>  Image.asset(
+                                'assets/placeholder_user.png',height: 55,width: 55,),
+        errorWidget: (context, url, error) =>  Image.asset(
+                                'assets/placeholder_user.png',height: 55,width: 55,),
+        fit: BoxFit.cover,
+      ),
+                           SizedBox(
                               width: 20), // Space between the avatar and text
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -946,30 +952,36 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               error: (error, stack) => Text('Error: $error'),
             ),
             ListTile(
+              leading: Icon(Icons.home),
               title: const Text('Home'),
               onTap: () {
                 Navigator.pushNamed(context, '/home');
               },
             ),
             ListTile(
+               leading: Icon(Icons.person),
               title: const Text('Profile'),
               onTap: () {
                 Navigator.pushNamed(context, '/profile');
               },
             ),
             ListTile(
+               leading: Icon(Icons.info),
               title: const Text('About'),
               onTap: () {
-                Navigator.pushNamed(context, '/about');
+                Navigator.push(context, MaterialPageRoute(builder: (ctx)=>ProfileScreen()));
+                // Navigator.pushNamed(context, '/about');
               },
             ),
             ListTile(
+               leading: Icon(Icons.settings),
               title: const Text('Settings'),
               onTap: () {
                 Navigator.pushNamed(context, '/settings');
               },
             ),
             ListTile(
+               leading: Icon(Icons.logout),
               title: const Text('Logout'),
               onTap: () async {
                 // Perform logout logic, then:
@@ -1021,13 +1033,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                       builder: (ctx) =>
                                           SharedPreferencesDetailsScreen()));
                             },
-                            child: CircleAvatar(
-                              foregroundImage: userData['userImage'] != null
-                                  ? NetworkImage(userData['userImage']!)
-                                  : const AssetImage(
-                                          'assets/placeholder_user.png')
-                                      as ImageProvider, // Use AssetImage for local images
-                            ),
+                            child:  CachedNetworkImage(
+        imageUrl: userData['userImage']!,
+        placeholder: (context, url) =>  Image.asset(
+                                'assets/placeholder_user.png',height: 55,width: 55,),
+        errorWidget: (context, url, error) =>  Image.asset(
+                                'assets/placeholder_user.png',height: 55,width: 55,),
+        fit: BoxFit.cover,
+      ),
+                            
+                            
+                            
+                            
+                           
                           ),
                           Text(
                             userName,
@@ -1093,18 +1111,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       final result = json.decode(response.body);
       if (result["status"] == "1") {
         await prefs.setBool("isLoggedIn", false);
+      
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => LoginScreen()), // Navigate to the LoginScreen
           (Route<dynamic> route) => false,
         );
       } else {
-        // Handle failure
+       _showSnackBar("status is 0");
       }
     } else {
-      // Handle server error
+      _showSnackBar("status code is not 200");
     }
   } catch (e) {
-    // Handle any exceptions
+    _showSnackBar("Error occured $e");
   }
 }
 
@@ -1258,59 +1277,4 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 }
 
-class CardSection extends StatelessWidget {
-  final String title;
-  final List listOfDataSets;
 
-  CardSection({required this.title, required this.listOfDataSets});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 8,
-      margin: const EdgeInsets.all(8.0),
-      child: Column(
-        children: <Widget>[
-          ListTile(
-            title: Text(
-              title,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-          ),
-          Container(
-              height: 200, // Set a fixed height for the inner content
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4, // Number of columns
-                  childAspectRatio: 1.0, // Aspect ratio of each item
-                  crossAxisSpacing: 4.0, // Spacing between items horizontally
-                  mainAxisSpacing: 4.0, // Spacing between items vertically
-                ),
-                itemCount:
-                    listOfDataSets.length, // Number of items in your list
-                itemBuilder: (context, index) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          listOfDataSets[index].thumbnail,
-                          height: 35,
-                          width: 35,
-                        ),
-                        Text(
-                          listOfDataSets[index].name,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w700, fontSize: 13),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              )),
-        ],
-      ),
-    );
-  }
-}

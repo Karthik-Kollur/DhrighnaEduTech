@@ -1,6 +1,10 @@
+import 'dart:convert';
+
+import 'package:drighna_ed_tech/models/student_profile_data.dart';
 import 'package:drighna_ed_tech/utils/constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart'as http;
 
 final decoratorProvider =
     FutureProvider.autoDispose<Map<String, String>>((ref) async {
@@ -20,3 +24,81 @@ final decoratorProvider =
   };
   
 });
+
+
+
+
+
+
+
+
+
+// Provider to manage fetching and holding the student data
+final studentProfileProvider = StateNotifierProvider<StudentProfileNotifier, StudentProfile?>((ref) {
+  return StudentProfileNotifier();
+});
+
+class StudentProfileNotifier extends StateNotifier<StudentProfile?> {
+  StudentProfileNotifier() : super(null);
+
+  Future<void> fetchStudentProfile(String apiUrl, String bodyParams) async {
+    print("*******Body params>>>>>>>>>>>"+bodyParams);
+    // Construct the url with provided apiUrl and endpoint
+    String url = apiUrl+Constants.getStudentProfileUrl; // Replace with your API endpoint
+    print("*******profileURL>>>>>>>"+url);
+ final prefs = await SharedPreferences.getInstance();
+    try {
+      var response = await http.post(
+
+        Uri.parse(url),
+        headers: {
+          'Client-Service': Constants.clientService,
+          'Auth-Key': Constants.authKey,
+          'Content-Type': 'application/json; charset=UTF-8',
+          'User-ID': prefs.getString("userId")??"",
+          'Authorization': prefs.getString("accessToken")??"",
+        },
+        body: bodyParams,
+      );
+      final data = json.decode(response.body);
+      print(data.toString());
+      if (response.statusCode == 200 && data != null) {
+        state = StudentProfile.fromJson(data);
+      } else {
+        // Handle the case when the server did not return a "200 OK" response
+        throw Exception('Failed to load student profile');
+      }
+    } catch (e) {
+      // Handle any exceptions when calling the endpoint
+      throw Exception('Failed to load student profile: $e');
+    }
+  }
+}
+
+
+
+// class ProfileScreen extends ConsumerWidget {
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     final studentProfile = ref.watch(studentProfileProvider);
+
+//     // Fetch the student profile when the widget is built for the first time
+//     useEffect(() {
+//       ref.read(studentProfileProvider.notifier).fetchStudentProfile('your_api_url', '{"key":"value"}');
+//       return null;
+//     }, []);
+
+//     return Scaffold(
+//       appBar: AppBar(title: Text('Student Profile')),
+//       body: studentProfile != null
+//           ? ListView(
+//               // Your ListView content goes here
+//               children: [
+//                 Text('Name: ${studentProfile.name}'),
+//                 // More widgets displaying profile data...
+//               ],
+//             )
+//           : Center(child: CircularProgressIndicator()), // Show loading spinner while fetching data
+//     );
+//   }
+// }

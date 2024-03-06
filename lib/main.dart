@@ -1,9 +1,9 @@
 
+import 'package:drighna_ed_tech/screens/students/about_screen.dart';
+import 'package:drighna_ed_tech/screens/students/profile_screen.dart';
 
-import 'package:drighna_ed_tech/screens/about_screen.dart';
-import 'package:drighna_ed_tech/screens/home_screen.dart';
-import 'package:drighna_ed_tech/screens/profile_screen.dart';
-import 'package:drighna_ed_tech/screens/settings_screen.dart';
+
+import 'package:drighna_ed_tech/screens/students/settings_screen.dart';
 import 'package:drighna_ed_tech/screens/splash_screen.dart';
 import 'package:drighna_ed_tech/screens/students/dashboard.dart';
 
@@ -31,7 +31,7 @@ class _MyAppState extends State<MyApp> {
       routes: {
         '/': (context) => SplashScreen(), // Define the SplashScreen route
         '/home': (context) => DashboardScreen(),
-        '/profile': (context) => ProfileScreen(),
+        '/profile': (context) => StudentProfileDetails(),
         '/about': (context) => AboutScreen(),
         '/settings': (context) => SettingsScreen(),
         // Add other routes as needed
