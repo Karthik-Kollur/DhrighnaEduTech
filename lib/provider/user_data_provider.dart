@@ -14,10 +14,9 @@ final decoratorProvider =
     'studentName': prefs.getString("studentName") ??
          
         "",
+        'loginType': prefs.getString(Constants.loginType)??"",
     'primaryColor': prefs.getString(Constants.primaryColour) ?? "",
     'secondaryColor': prefs.getString(Constants.secondaryColour) ?? "",
-     
-
   };
   
 });

@@ -71,6 +71,30 @@ flutter:
     - assets/placeholder_user.png
     - assets/splash_logo.png
     - assets/placeholder_user.png
+    - assets/ic_dashboard_homework.png
+    - assets/ic_assignment.png
+    - assets/ic_lessonplan.png
+    - assets/ic_onlineexam.png
+    - assets/ic_downloadcenter.png
+    - assets/ic_onlinecourse.png
+    - assets/ic_videocam.png
+    - assets/ic_calender_cross.png
+    - assets/ic_lessonplan.png
+    - assets/ic_nav_attendance.png
+    - assets/ic_nav_reportcard.png
+    - assets/ic_nav_timeline.png
+    - assets/ic_documents_certificate.png
+    - assets/ic_dashboard_homework.png
+    - assets/ic_notice.png
+    - assets/ic_notification.png
+    - assets/ic_nav_fees.png
+    - assets/ic_leave.png
+    - assets/ic_visitors.png
+    - assets/ic_nav_transport.png
+    - assets/ic_nav_hostel.png
+    - assets/ic_dashboard_pandingtask.png
+    - assets/ic_library.png
+    - assets/ic_teacher.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

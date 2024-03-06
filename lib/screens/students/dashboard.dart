@@ -37,6 +37,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   List<String> childNameList = [];
   List<String> childClassList = [];
   List<String> childImageList = [];
+  List<String> childAdmissionNo = [];
 
   List<Album1> communicateAlbumList = [];
   List<Album1> elearningAlbumList = [];
@@ -91,9 +92,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         print("Modules length: ${modulesJson.length}");
 
         // Assuming you have a predefined list of covers like in your Android code
-        List<int> covers = [
-          // Add your drawable resource IDs as integers here. You'll need to use AssetImage or similar in Flutter.
-          1
+        List<String> covers = [
+          'assets/ic_dashboard_homework.png',
+          'assets/ic_assignment.png',
+          'assets/ic_lessonplan.png',
+          'assets/ic_onlineexam.png',
+          'assets/ic_downloadcenter.png',
+          'assets/ic_onlinecourse.png',
+          'assets/ic_videocam.png',
+          'assets/ic_videocam.png',
         ];
 
         // Clear the list before adding new items to avoid duplication
@@ -105,7 +112,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             Album1 album = Album1(
               name: module["name"],
               value: module["short_code"],
-              thumbnail: 1,
+              thumbnail: covers[i],
               // For thumbnail, use AssetImage or NetworkImage based on your actual use case
             );
             elearningAlbumList.add(album);
@@ -152,11 +159,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         final result = json.decode(response.body);
         final modulesJson = result["module_list"] as List;
 
-        List<int> covers = [
-          // Adjust these according to your Flutter app's assets
-          1, // For example purposes, replace with actual indices or asset references
+        List<String> covers = [
+          'assets/ic_notice.png',
+          'assets/ic_notification.png',
         ];
-
         // Clear the list before adding new items to avoid duplication
         communicateAlbumList.clear();
 
@@ -166,8 +172,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             Album1 album = Album1(
               name: module["name"],
               value: module["short_code"],
-              thumbnail:
-                  covers[i % covers.length], // Adjust indexing for covers
+              thumbnail: covers[i], // Adjust indexing for covers
             );
             communicateAlbumList.add(album);
           }
@@ -330,10 +335,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         "deviceToken": device_token,
                         // Add other logout parameters here as needed
                       };
-                      String bodyParams = json
-                          .encode(logoutParams); // Convert map to JSON string
+                   
 
-                      loginOutApi(bodyParams);
+                      loginOutApi(context,logoutParams);
                     },
                   ),
                 ],
@@ -458,8 +462,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             child: new Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CircularProgressIndicator(),
-                Text("Loading"),
+                const CircularProgressIndicator(),
+                const Text("Loading"),
               ],
             ),
           );
@@ -482,10 +486,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         final modulesJson = result["module_list"] as List;
         print("Modules length: ${modulesJson.length}");
 
-        List<int> covers = [
-          1
-          // Add your drawable resource IDs as integers here.
-          // In Flutter, use AssetImage or similar.
+        List<String> covers = [
+          'assets/ic_nav_fees.png',
+          'assets/ic_leave.png',
+          'assets/ic_visitors.png',
+          'assets/ic_nav_transport.png',
+          'assets/ic_nav_hostel.png',
+          'assets/ic_dashboard_pandingtask.png',
+          'assets/ic_library.png',
+          'assets/ic_teacher.png',
         ];
 
         // Clear the list before adding new items to avoid duplication
@@ -497,8 +506,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             Album1 album = Album1(
               name: module["short_code"],
               value: module["status"],
-              thumbnail:
-                  covers[i % covers.length], // Example handling for covers
+              thumbnail: covers[i], // Example handling for covers
             );
             otherAlbumList.add(album);
           }
@@ -606,10 +614,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       var response = await http.post(
         Uri.parse(url),
         headers: {
-          "Client-Service": "yourClientServiceValue",
-          "Auth-Key": "yourAuthKeyValue",
-          "Content-Type": "application/json",
-          // Add other headers here
+          "Client-Service": Constants.clientService,
+          "Auth-Key": Constants.authKey,
+          "Content-Type": Constants.contentType,
         },
         body: bodyParams,
       );
@@ -637,6 +644,136 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     }
   }
 
+  void showChildList(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 300,
+          color: Colors.white,
+          child: Column(
+            children: <Widget>[
+              Container(
+                // color:Color(0xFF9E9E9E),
+                color: Theme.of(context)
+                    .secondaryHeaderColor, // Change this to your secondary color
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    const Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text(
+                          'Child List',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            // set text style as per your design
+                          ),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        setState(() {
+                          Navigator.pop(context);
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: childNameList
+                      .length, // Assume childNameList is a list of strings
+                  itemBuilder: (BuildContext context, int index) {
+                    return Card(
+                      color: Colors.white,
+                      elevation: 10,
+                      child: ListTile(
+                        leading: childImageList[index] != null
+                            ? Image.network(
+                                childImageList[index],
+                                height: 30,
+                                width: 30,
+                                fit: BoxFit.cover,
+                                errorBuilder: (BuildContext context,
+                                    Object exception, StackTrace? stackTrace) {
+                                  // If the image fails to load, you can return an error image or icon
+                                  return const Icon(Icons.person);
+                                },
+                                loadingBuilder: (BuildContext context,
+                                    Widget child,
+                                    ImageChunkEvent? loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return SizedBox(
+                                    height:
+                                        30, // Match the Image.network height
+                                    width: 30, // Match the Image.network width
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
+                                            : null,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              )
+
+                            // Replace with the appropriate image provider
+                            : const CircleAvatar(
+                                child: Text("not set"),
+                              ), // Default image
+                        title: Text(
+                          childNameList[index],
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Text(childClassList[index]),
+                        onTap: () async {
+                          final SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          prefs.setString(
+                              Constants.admission_no, childAdmissionNo[index]);
+                          await prefs.setBool(Constants.isLoggegIn, true);
+
+                          await prefs.setString(
+                              Constants.classSection, childClassList[index]);
+
+                          await prefs.setString(
+                              Constants.studentId, childIdList[index]);
+                          await prefs.setString(
+                              "studentName", childNameList[index]);
+                          // await prefs.setString('selectedChild', jsonEncode(children[0]));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text(
+                                    "Successfully loged in parent with one of his children")),
+                          );
+                          ref.invalidate(
+                              decoratorProvider); //trigger the provider
+                          Navigator.of(context).pushReplacement(MaterialPageRoute(
+                              builder: (_) =>
+                                  const DashboardScreen())); // Adjust as needed
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final userDataAsyncValue = ref.watch(decoratorProvider);
@@ -659,44 +796,195 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            const DrawerHeader(
-              child: Text('Header'),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
+            userDataAsyncValue.when(
+              data: (Map<String, String> userData) {
+                if (userData['studentName'] != "") {
+                  userName = userData['userName']!;
+                } else {
+                  userName = userData['userName']!;
+                }
+
+                return DrawerHeader(
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          const CircleAvatar(
+                            radius: 30, // Adjust radius to change the size
+                            backgroundImage: AssetImage(
+                                'assets/placeholder_user.png'), // Local image
+                          ),
+                          const SizedBox(
+                              width: 20), // Space between the avatar and text
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                userName, // Replace with your dynamic value
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .headline6!
+                                      .color, // Use theme for color
+                                  fontSize: Theme.of(context)
+                                      .textTheme
+                                      .headline6!
+                                      .fontSize, // Use theme for text size
+                                ),
+                              ),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  userData['loginType'] == 'parent'
+                                      ? Text(
+                                          "Child-${userData['studentName']}", // Replace with your dynamic value
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Theme.of(context)
+                                                .textTheme
+                                                .subtitle1!
+                                                .color, // Adjust as needed
+                                            fontSize: Theme.of(context)
+                                                .textTheme
+                                                .subtitle1!
+                                                .fontSize, // Adjust as needed
+                                          ),
+                                        )
+                                      : SizedBox(),
+                                  Text(
+                                    "${userData['classSection']}",
+                                  )
+                                ],
+                              ),
+                              // Add more Text widgets as needed for other details
+                            ],
+                          ),
+                        ],
+                      ),
+                      userData['loginType'] == 'parent'
+                          ? Row(
+                              children: [
+                                const SizedBox(
+                                    width: 60 + 20), // Avatar size + margin
+                                Expanded(
+                                  child: Container(
+                                    alignment: Alignment.centerLeft,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          "Switch child", // Dynamic value or localized string
+                                          style: TextStyle(
+                                            fontSize: Theme.of(context)
+                                                .textTheme
+                                                .subtitle1!
+                                                .fontSize, // Adjust as needed
+                                            color: Theme.of(context)
+                                                .textTheme
+                                                .subtitle1!
+                                                .color, // Adjust as needed
+                                          ),
+                                        ),
+                                        const SizedBox(width: 5),
+
+                                        IconButton(
+                                          onPressed: () async {
+                                            final SharedPreferences prefs =
+                                                await SharedPreferences
+                                                    .getInstance();
+                                            String userId =
+                                                prefs.getString("userId") ?? "";
+
+                                            // if (userId == null) {
+                                            //   print("User ID is null");
+                                            //   return;
+                                            // }
+
+                                            Map<String, dynamic> params = {
+                                              "parent_id": userId,
+                                            };
+
+                                            // Convert params to JSON string
+                                            String bodyParams =
+                                                json.encode(params);
+                                            print("params: $bodyParams");
+
+                                            // Now call your function with the JSON string
+                                            getStudentsListFromApi(
+                                                context, bodyParams);
+                                          },
+                                          icon: Icon(
+                                            Icons.swap_horiz, // Example icon
+                                            color: Theme.of(context)
+                                                .iconTheme
+                                                .color, // Use theme for icon color
+                                            size: Theme.of(context)
+                                                .iconTheme
+                                                .size, // Use theme for icon size
+                                          ),
+                                        )
+
+                                        // Space between text and icon
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : SizedBox()
+                      // Add more widgets as needed
+                    ],
+                  ),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFE1EDE9),
+                  ),
+                );
+              },
+              loading: () => const CircularProgressIndicator(),
+              error: (error, stack) => Text('Error: $error'),
             ),
             ListTile(
               title: const Text('Home'),
               onTap: () {
-                Navigator.pushReplacementNamed(context, '/home');
+                Navigator.pushNamed(context, '/home');
               },
             ),
             ListTile(
               title: const Text('Profile'),
               onTap: () {
-                Navigator.pushReplacementNamed(context, '/profile');
+                Navigator.pushNamed(context, '/profile');
               },
             ),
             ListTile(
               title: const Text('About'),
               onTap: () {
-                Navigator.pushReplacementNamed(context, '/about');
+                Navigator.pushNamed(context, '/about');
               },
             ),
             ListTile(
               title: const Text('Settings'),
               onTap: () {
-                Navigator.pushReplacementNamed(context, '/settings');
+                Navigator.pushNamed(context, '/settings');
               },
             ),
             ListTile(
               title: const Text('Logout'),
               onTap: () async {
                 // Perform logout logic, then:
-                Navigator.of(context).pop(); // Close the drawer
+
                 bool isConnected = await isConnectingToInternet();
                 if (isConnected) {
                   // Perform your API logout call
+                  Map<String, dynamic> logoutParams = {
+    "deviceToken": device_token,
+  };
+                  
+
+                  // Call the Logout function with the required deviceToken
+                  await loginOutApi(context, logoutParams);
+                 
                 } else {
                   _showSnackBar("No internet connection");
                 }
@@ -734,10 +1022,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                           SharedPreferencesDetailsScreen()));
                             },
                             child: CircleAvatar(
-                              backgroundImage: userData['userImage'] != null
+                              foregroundImage: userData['userImage'] != null
                                   ? NetworkImage(userData['userImage']!)
-                                  : Image.asset('assets/placeholder_user.png')
-                                      as ImageProvider, // replace with your default image path
+                                  : const AssetImage(
+                                          'assets/placeholder_user.png')
+                                      as ImageProvider, // Use AssetImage for local images
                             ),
                           ),
                           Text(
@@ -751,13 +1040,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       ),
                     ),
                     CardSection(
-                      title: "eLearning",
+                      title: "E-Learning",
                       listOfDataSets: elearningAlbumList,
                     ),
                     CardSection(
-                        title: "Academic", listOfDataSets: academicAlbumList),
+                        title: "Academics", listOfDataSets: academicAlbumList),
                     CardSection(
-                        title: "Communication",
+                        title: "Communicate",
                         listOfDataSets: communicateAlbumList),
                     CardSection(
                         title: "Others", listOfDataSets: otherAlbumList),
@@ -774,7 +1063,50 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  void loginOutApi(String bodyParams) {}
+  
+  Future<void> loginOutApi(BuildContext context,  logoutParams) async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  String apiUrl = prefs.getString("apiUrl") ?? "";
+  String logoutUrl = apiUrl + Constants.logoutUrl; // Your logout endpoint
+  Map<String, String> headers = {
+    "Client-Service": Constants.clientService,
+    "Auth-Key": Constants.authKey,
+    "Content-Type": "application/json",
+    "User-ID": prefs.getString("userId") ?? "",
+    "Authorization": prefs.getString("accessToken") ?? "",
+  };
+  
+ 
+
+  // Log the logout details as a JSON string
+  print("Logout Details==${jsonEncode(logoutParams)}");
+
+  // Step 2: Perform the logout request
+  try {
+    final response = await http.post(
+      Uri.parse(logoutUrl),
+      headers: headers,
+      body: jsonEncode(logoutParams),
+    );
+
+    if (response.statusCode == 200) {
+      final result = json.decode(response.body);
+      if (result["status"] == "1") {
+        await prefs.setBool("isLoggedIn", false);
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => LoginScreen()), // Navigate to the LoginScreen
+          (Route<dynamic> route) => false,
+        );
+      } else {
+        // Handle failure
+      }
+    } else {
+      // Handle server error
+    }
+  } catch (e) {
+    // Handle any exceptions
+  }
+}
 
   Future<void> getAcademicsFromApi(bodyParams) async {
     print("Getting academics data...");
@@ -811,9 +1143,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         print("Modules length: ${modulesJson.length}");
 
         // Assuming you have a predefined list of covers like in your Android code
-        List<int> covers = [
-          1
-          // You will need to adjust this part to match your actual assets or use network images
+        List<String> covers = [
+          'assets/ic_calender_cross.png',
+          'assets/ic_lessonplan.png',
+          'assets/ic_nav_attendance.png',
+          'assets/ic_nav_reportcard.png',
+          'assets/ic_nav_timeline.png',
+          'assets/ic_documents_certificate.png',
+          'assets/ic_dashboard_homework.png',
+          'assets/ic_nav_reportcard.png', // Repeated if it's intentional
         ];
 
         // Clear the list before adding new items to avoid duplication
@@ -825,9 +1163,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             Album1 album = Album1(
               name: module["name"],
               value: module["short_code"],
-              thumbnail: covers[i %
-                  covers
-                      .length], // Make sure covers list has enough elements or handle this differently
+              thumbnail: covers[
+                  i], // Make sure covers list has enough elements or handle this differently
               // For thumbnail, use AssetImage, NetworkImage, or appropriate widget
             );
             academicAlbumList.add(album);
@@ -841,6 +1178,82 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       }
     } catch (e) {
       print("Error fetching academics data: $e");
+    }
+  }
+
+  Future<void> getStudentsListFromApi(
+      BuildContext context, String bodyParams) async {
+    print("**********>>>>>>>>>Inside getStudentsListFromApi");
+    childIdList.clear();
+    childNameList.clear();
+    childClassList.clear();
+    childImageList.clear();
+    childAdmissionNo.clear();
+
+    // Fetch URL and headers from SharedPreferences
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String apiUrl = prefs.getString('apiUrl') ?? "";
+    String parentsStudentsList = Constants.parent_getStudentList;
+    String userId = prefs.getString('userId') ?? "";
+    String accessToken = prefs.getString('accessToken') ?? "";
+
+    // Assuming Constants are replaced with actual constants values
+    String url = apiUrl + parentsStudentsList;
+
+    print("***************>>>>>>>>>>" + url);
+
+    Map<String, String> headers = {
+      "Client-Service": Constants.clientService, // Adjust accordingly
+      "Auth-Key": Constants.authKey, // Adjust accordingly
+      "Content-Type": "application/json",
+      "User-ID": userId,
+      "Authorization": accessToken,
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+        body: bodyParams,
+      );
+
+      // Navigator.pop(context); // Dismiss the loading dialog
+
+      if (response.statusCode == 200) {
+        // Parse the JSON data
+        final result = json.decode(response.body);
+
+        print("*******list of children>>>>>" + result.toString());
+
+        List<dynamic> dataList = result['childs'];
+
+        print("******************>>>>>>>" + dataList.toString());
+
+        if (dataList.length != 0) {
+          for (var data in dataList) {
+            childIdList.add(data["id"]);
+            childNameList.add("${data["firstname"]} ${data["lastname"]}");
+            childClassList.add("${data["class"]}-${data["section"]}");
+            childImageList.add(data["image"]);
+            childAdmissionNo.add(data["admission_no"]);
+          }
+
+          print(
+              "*************************>>>>>>>>>>" + childNameList.toString());
+
+          showChildList(context);
+        } else {
+          _showSnackBar(result['errorMsg']);
+        }
+      } else {
+        // Handle error
+        print('Server error: ${response.body}');
+      }
+    } catch (e) {
+      Navigator.pop(
+          context); // Ensure loading dialog is dismissed in case of error
+      print(e.toString());
+      // Handle error
     }
   }
 }
@@ -861,7 +1274,7 @@ class CardSection extends StatelessWidget {
           ListTile(
             title: Text(
               title,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
           Container(
@@ -876,9 +1289,22 @@ class CardSection extends StatelessWidget {
                 itemCount:
                     listOfDataSets.length, // Number of items in your list
                 itemBuilder: (context, index) {
-                  return Card(
-                    child: Center(
-                      child: Text(listOfDataSets[index].name),
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          listOfDataSets[index].thumbnail,
+                          height: 35,
+                          width: 35,
+                        ),
+                        Text(
+                          listOfDataSets[index].name,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w700, fontSize: 13),
+                        ),
+                      ],
                     ),
                   );
                 },

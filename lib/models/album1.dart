@@ -1,6 +1,6 @@
 class Album1 {
   String name;
-  int thumbnail;
+  String thumbnail;
   String value;
 
   Album1({required this.name, required this.thumbnail, required this.value});

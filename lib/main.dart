@@ -5,6 +5,7 @@ import 'package:drighna_ed_tech/screens/home_screen.dart';
 import 'package:drighna_ed_tech/screens/profile_screen.dart';
 import 'package:drighna_ed_tech/screens/settings_screen.dart';
 import 'package:drighna_ed_tech/screens/splash_screen.dart';
+import 'package:drighna_ed_tech/screens/students/dashboard.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,7 +30,7 @@ class _MyAppState extends State<MyApp> {
       initialRoute: '/', // Set the initial route
       routes: {
         '/': (context) => SplashScreen(), // Define the SplashScreen route
-        '/home': (context) => HomeScreen(),
+        '/home': (context) => DashboardScreen(),
         '/profile': (context) => ProfileScreen(),
         '/about': (context) => AboutScreen(),
         '/settings': (context) => SettingsScreen(),
