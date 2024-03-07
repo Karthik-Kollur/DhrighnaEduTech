@@ -1,16 +1,11 @@
 
 import 'package:drighna_ed_tech/screens/students/about_screen.dart';
 import 'package:drighna_ed_tech/screens/students/profile_screen.dart';
-
-
 import 'package:drighna_ed_tech/screens/students/settings_screen.dart';
 import 'package:drighna_ed_tech/screens/splash_screen.dart';
 import 'package:drighna_ed_tech/screens/students/dashboard.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-
 
 void main() {
   runApp( ProviderScope(child: MyApp()));

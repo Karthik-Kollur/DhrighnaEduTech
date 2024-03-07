@@ -202,13 +202,19 @@ class _LoginScreenState extends State<LoginScreen> {
       childImageList.clear();
       childClassList.clear();
 
-      for (int i = 0; i < children.length; i++) {
-        childNameList.add(children[i]['name']);
-        childIdList.add(children[i]['student_id']);
-        childImageList.add(children[i]['image']);
+      print(children.length.toString());
+
+      for (int i = 0; i <children.length; i++) {
+        childNameList.add(children[i]['name'].toString());
+        childIdList.add(children[i]['student_id'].toString());
+        childImageList.add(children[i]['image'].toString());
         childClassList.add(
             children[i]['class'] + " - " + children[i]["section"].toString());
       }
+
+
+      print(childNameList.toString());
+
 
       // print(childImageList.toString());
 //show child list method run here

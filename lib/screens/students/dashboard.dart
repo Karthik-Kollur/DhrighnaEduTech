@@ -10,6 +10,7 @@ import 'package:drighna_ed_tech/utils/constants.dart';
 import 'package:drighna_ed_tech/widgets/dashboard_cards.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -455,22 +456,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     String url = "$apiUrl$getOthersUrl";
 
     try {
-      // Showing loading indicator
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return Dialog(
-            child: new Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const CircularProgressIndicator(),
-                const Text("Loading"),
-              ],
-            ),
-          );
-        },
-      );
+      // // Showing loading indicator
+      // showDialog(
+      //   context: context,
+      //   barrierDismissible: false,
+      //   builder: (BuildContext context) {
+      //     return const CircularProgressIndicator();
+      //   },
+      // );
 
       final response = await http.post(
         Uri.parse(url),
@@ -478,8 +471,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         body: bodyParams,
       );
 
-      // Dismiss the loading indicator
-      Navigator.pop(context);
+      // // Dismiss the loading indicator
+      // Navigator.pop(context);
 
       if (response.statusCode == 200) {
         final result = json.decode(response.body);
@@ -807,151 +800,118 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 }
 
                 return DrawerHeader(
-                  child: Column(
+                    decoration: const BoxDecoration(
+                    color: Color(0xFFE1EDE9),
+                  ),
+                  
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          CachedNetworkImage(
-                            imageUrl: userData['userImage']!,
-                            placeholder: (context, url) => Image.asset(
-                              'assets/placeholder_user.png',
-                              height: 55,
-                              width: 55,
-                            ),
-                            errorWidget: (context, url, error) => Image.asset(
-                              'assets/placeholder_user.png',
-                              height: 55,
-                              width: 55,
-                            ),
-                            fit: BoxFit.cover,
-                          ),
-                          const SizedBox(
-                              width: 20), // Space between the avatar and text
-                          Column(
+                      CachedNetworkImage(
+                        imageUrl: userData['userImage']!,
+                        placeholder: (context, url) => Image.asset(
+                          'assets/placeholder_user.png',
+                          height: 70,
+                          width: 70,
+                        ),
+                        errorWidget: (context, url, error) => Image.asset(
+                          'assets/placeholder_user.png',
+                          height: 70,
+                          width: 70,
+                        ),
+                        fit: BoxFit.cover,
+                      ),
+                      const SizedBox(
+                          width: 10), // Space between the avatar and text
+                      Expanded(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 userName, // Replace with your dynamic value
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .headline6!
-                                      .color, // Use theme for color
-                                  fontSize: Theme.of(context)
-                                      .textTheme
-                                      .headline6!
-                                      .fontSize, // Use theme for text size
-                                ),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 23),
                               ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  userData['loginType'] == 'parent'
-                                      ? Text(
-                                          "Child-${userData['studentName']}", // Replace with your dynamic value
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Theme.of(context)
-                                                .textTheme
-                                                .subtitle1!
-                                                .color, // Adjust as needed
-                                            fontSize: Theme.of(context)
-                                                .textTheme
-                                                .subtitle1!
-                                                .fontSize, // Adjust as needed
-                                          ),
-                                        )
-                                      : const SizedBox(),
-                                  Text(
-                                    "${userData['classSection']}",
-                                  )
-                                ],
+                              userData['loginType'] == 'parent'
+                                  ? Text(
+                                      "Child-${userData['studentName']}",
+                                      overflow: TextOverflow
+                                          .clip, // Replace with your dynamic value
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    )
+                                  : const SizedBox(),
+                              Text(
+                                "${userData['classSection']}",
                               ),
-                              // Add more Text widgets as needed for other details
+                              userData['loginType'] == 'parent' &&
+                                      userData['hasMultipleChild'] == "true"
+                                  ? Row(
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            const Text(
+                                              "Switch child", // Dynamic value or localized string
+                                              style: TextStyle(),
+                                            ),
+                                            const SizedBox(width: 5),
+                                            IconButton(
+                                              onPressed: () async {
+                                                final SharedPreferences prefs =
+                                                    await SharedPreferences
+                                                        .getInstance();
+                                                String userId =
+                                                    prefs.getString("userId") ??
+                                                        "";
+                          
+                                                if (userId == null) {
+                                                  print("User ID is null");
+                                                  return;
+                                                }
+                          
+                                                Map<String, dynamic> params = {
+                                                  "parent_id": userId,
+                                                };
+                          
+                                                // Convert params to JSON string
+                                                String bodyParams =
+                                                    json.encode(params);
+                                                print(
+                                                    "body params of swicth cjild: $bodyParams");
+                          
+                                              
+                                                getStudentsListFromApi(
+                                                    context, bodyParams);
+                                              },
+                                              icon: Icon(
+                                                Icons.swap_horiz, // Example icon
+                                                color: Theme.of(context)
+                                                    .iconTheme
+                                                    .color, // Use theme for icon color
+                                                size: Theme.of(context)
+                                                    .iconTheme
+                                                    .size, // Use theme for icon size
+                                              ),
+                                            )
+                          
+                                            // Space between text and icon
+                                          ],
+                                        ),
+                                      ],
+                                    )
+                                  : const SizedBox()
                             ],
                           ),
-                        ],
+                        ),
                       ),
-                      userData['loginType'] == 'parent' &&
-                              userData['hasMultipleChild'] == "true"
-                          ? Row(
-                              children: [
-                                const SizedBox(
-                                    width: 60 + 20), // Avatar size + margin
-                                Expanded(
-                                  child: Container(
-                                    alignment: Alignment.centerLeft,
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          "Switch child", // Dynamic value or localized string
-                                          style: TextStyle(
-                                            fontSize: Theme.of(context)
-                                                .textTheme
-                                                .subtitle1!
-                                                .fontSize, // Adjust as needed
-                                            color: Theme.of(context)
-                                                .textTheme
-                                                .subtitle1!
-                                                .color, // Adjust as needed
-                                          ),
-                                        ),
-                                        const SizedBox(width: 5),
-
-                                        IconButton(
-                                          onPressed: () async {
-                                            final SharedPreferences prefs =
-                                                await SharedPreferences
-                                                    .getInstance();
-                                            String userId =
-                                                prefs.getString("userId") ?? "";
-
-                                            // if (userId == null) {
-                                            //   print("User ID is null");
-                                            //   return;
-                                            // }
-
-                                            Map<String, dynamic> params = {
-                                              "parent_id": userId,
-                                            };
-
-                                            // Convert params to JSON string
-                                            String bodyParams =
-                                                json.encode(params);
-                                            print("params: $bodyParams");
-
-                                            // Now call your function with the JSON string
-                                            getStudentsListFromApi(
-                                                context, bodyParams);
-                                          },
-                                          icon: Icon(
-                                            Icons.swap_horiz, // Example icon
-                                            color: Theme.of(context)
-                                                .iconTheme
-                                                .color, // Use theme for icon color
-                                            size: Theme.of(context)
-                                                .iconTheme
-                                                .size, // Use theme for icon size
-                                          ),
-                                        )
-
-                                        // Space between text and icon
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )
-                          : const SizedBox()
-                      // Add more widgets as needed
                     ],
                   ),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFE1EDE9),
-                  ),
+                
                 );
               },
               loading: () => const CircularProgressIndicator(),
@@ -1253,11 +1213,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
         if (dataList.length != 0) {
           for (var data in dataList) {
-            childIdList.add(data["id"]);
-            childNameList.add("${data["firstname"]} ${data["lastname"]}");
-            childClassList.add("${data["class"]}-${data["section"]}");
-            childImageList.add(data["image"]);
-            childAdmissionNo.add(data["admission_no"]);
+            childIdList.add(data["id"].toString());
+            childNameList.add(
+                "${data["firstname"].toString()} ${data["lastname"].toString()}");
+            childClassList.add(
+                "${data["class"].toString()}-${data["section"].toString()}");
+            childImageList.add(data["image"].toString());
+            childAdmissionNo.add(data["admission_no"].toString());
           }
 
           print(
