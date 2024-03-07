@@ -874,7 +874,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           ),
                         ],
                       ),
-                      userData['loginType'] == 'parent' &&  userData['hasMultipleChild']=="true"
+                      userData['loginType'] == 'parent' &&
+                              userData['hasMultipleChild'] == "true"
                           ? Row(
                               children: [
                                 const SizedBox(
@@ -974,9 +975,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               leading: const Icon(Icons.info),
               title: const Text('About'),
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (ctx) => ProfileScreen()));
-                // Navigator.pushNamed(context, '/about');
+                Navigator.pushNamed(context, '/about');
               },
             ),
             ListTile(

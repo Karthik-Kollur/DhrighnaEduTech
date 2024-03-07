@@ -32,7 +32,7 @@ class _MyAppState extends State<MyApp> {
         '/': (context) => SplashScreen(), // Define the SplashScreen route
         '/home': (context) => DashboardScreen(),
         '/profile': (context) => StudentProfileDetails(),
-        '/about': (context) => AboutScreen(),
+        '/about': (context) => AboutSchool(),
         '/settings': (context) => SettingsScreen(),
         // Add other routes as needed
       },
